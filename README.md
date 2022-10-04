@@ -1,27 +1,101 @@
 # Lojavirtual
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 14.2.1.
+## Componente Header
 
-## Development server
+É o componente relacionado ao cabeçalho
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+## Componente Footer
 
-## Code scaffolding
+É o componente relacioado ao footer
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+## modulo produtos
 
-## Build
+Criamos um modulo produtos e adicionamos um lazy-loading nas rotas para tornar o carregamento mais rápido
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+utilizamos o comando
 
-## Running unit tests
+> ng g module modulos/produtos --route produtos --module app.module
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+o route adicionando a rota como path "produtos" e vinculamos ao app.module
 
-## Running end-to-end tests
+no router também setamos para a página de produto ser a inicial
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+```javascript
+ const routes: Routes = [
+  { path: 'produtos', loadChildren: () => import('./modulos/produtos/produtos.module').then(m => m.ProdutosModule) },
+  {path: "", redirectTo: "produtos", pathMatch: "full"},
+];
+```
 
-## Further help
+### Produtos.ts
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+o Produto ts é uma class que simulará o backend, nela temos a interface simulando o modelo de dados e uma lista com as informações dos produtos
+
+No componente setamos a variável produto, que receberá o mock de produtos do TS (no caso um array)
+
+``` javascript
+export class ProdutosComponent implements OnInit {
+  //criando uma variável produtos e setando o valor para o produto la no TS
+   produtos: IProduto[] = produtos;
+
+  constructor() { }
+
+  ngOnInit(): void {
+  }
+
+}
+```
+
+## Detalhes Proutos
+
+É a página de produto individuais, com os seus detalhes
+
+> ng g c modulos/produtos/detalhes-produtos --module produtos.module
+
+aqui criamos um componente para isso e atrelamos esse componente ao produtos.module
+
+``` javascript
+@NgModule({
+  declarations: [
+    ProdutosComponent,
+    DetalhesProdutosComponent
+  ],
+  imports: [
+    CommonModule,
+    ProdutosRoutingModule
+  ]
+})
+export class ProdutosModule { }
+
+```
+note que dentro da declarations ele já fica atrelado
+
+Setamos algumas rotas no próprio módulo criado e criamos um serviço para simular uma requisição ao backend
+
+### Serviço Produto
+
+Simula requisição ao backend
+
+~~~javascript
+@Injectable({
+  providedIn: 'root'
+})
+export class ProdutosService {
+   produtos: IProduto[] = produtos;
+
+  constructor() { }
+
+  getAll() {
+    return this.produtos;
+  }
+
+  getOne(produtoId: number) {
+    return this.produtos.find(produto => produto.id = produtoId);
+  }
+}
+
+~~~
+
+Agora importamos os métodos do serviço tanto no produto.ts (metodo get All) como no detalhe-produto (get one)
+
+Depois utilizamos as propriedades nos arquivos HTML
